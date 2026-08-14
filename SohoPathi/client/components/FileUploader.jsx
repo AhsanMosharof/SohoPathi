@@ -4,9 +4,8 @@ import { useState, useRef } from "react";
 import { Upload, FileText, X, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export default function FileUploader({ onUpload, loading }) {
+export default function FileUploader({ loading, file, setFile }) {
   const [dragActive, setDragActive] = useState(false);
-  const [file, setFile] = useState(null);
   const inputRef = useRef(null);
 
   const handleDrag = (e) => {
@@ -24,7 +23,7 @@ export default function FileUploader({ onUpload, loading }) {
     e.stopPropagation();
     setDragActive(false);
     const droppedFile = e.dataTransfer.files?.[0];
-    if (droppedFile && droppedFile.type === "application/pdf") {
+    if (droppedFile && (droppedFile.type === "application/pdf" || droppedFile.type.startsWith("image/"))) {
       setFile(droppedFile);
     }
   };
@@ -58,7 +57,7 @@ export default function FileUploader({ onUpload, loading }) {
         <input
           ref={inputRef}
           type="file"
-          accept=".pdf"
+          accept=".pdf,image/*"
           onChange={handleChange}
           className="hidden"
         />
@@ -68,9 +67,9 @@ export default function FileUploader({ onUpload, loading }) {
           <Upload className="w-10 h-10 text-[var(--color-muted-foreground)] mb-3" />
         )}
         <p className="text-sm text-[var(--color-muted-foreground)]">
-          {loading ? "Uploading & processing..." : "Drag & drop a PDF here, or click to browse"}
+          {loading ? "Uploading & processing..." : "Drag & drop a PDF or Image here, or click to browse"}
         </p>
-        <p className="text-xs text-[var(--color-muted-foreground)] mt-1">PDF files only</p>
+        <p className="text-xs text-[var(--color-muted-foreground)] mt-1">PDF and Image files</p>
       </div>
 
       {file && !loading && (

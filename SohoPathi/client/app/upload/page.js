@@ -25,32 +25,35 @@ export default function UploadPage() {
   }, []);
 
   const handleUpload = async () => {
-    if (!courseName.trim()) {
-      toast.error("Please enter a course name");
+    if (!file) {
+      toast.error("Please select a file to upload");
       return;
     }
+    // Auto-generate course name from filename if empty
+    const finalCourseName = courseName.trim() || file.name.replace(/\.[^/.]+$/, "");
 
-    // Get file from the FileUploader via DOM
-    const fileInput = document.querySelector('input[type="file"]');
-    const selectedFile = fileInput?.files?.[0];
-    if (!selectedFile) {
-      toast.error("Please select a PDF file");
+    if (!file) {
+      toast.error("Please select a file to upload");
       return;
     }
 
     setLoading(true);
     try {
       const formData = new FormData();
-      formData.append("file", selectedFile);
-      formData.append("courseName", courseName.trim());
+      formData.append("file", file);
+      formData.append("courseName", finalCourseName);
 
       const res = await uploadPDF(formData);
+      
       const { courseId, chunkCount } = res.data;
-
-      dispatch(addCourse({ id: courseId, name: courseName.trim() }));
+      
+      // Store course in local storage context (or real auth context)
+      localStorage.setItem("currentCourseId", courseId);
+      
+      dispatch(addCourse({ id: courseId, name: finalCourseName }));
       dispatch(setActiveCourse(courseId));
 
-      toast.success(`Uploaded! ${chunkCount} chunks extracted from your PDF.`);
+      toast.success(`Uploaded! ${chunkCount} chunks extracted from your file.`);
       router.push(`/chat?courseId=${courseId}`);
     } catch (err) {
       toast.error(err.response?.data?.error || "Upload failed. Please try again.");
@@ -70,8 +73,8 @@ export default function UploadPage() {
             <Upload className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold mb-2">Upload Course Material</h1>
-          <p className="text-[var(--color-muted-foreground)]">
-            Upload a PDF and start chatting with your study AI
+          <p className="text-[var(--color-muted-foreground)] max-w-xl mx-auto">
+            Upload a PDF or Image (Handnotes/Slides) and start chatting with your study AI
           </p>
         </div>
 
@@ -90,12 +93,12 @@ export default function UploadPage() {
           </div>
 
           {/* File uploader */}
-          <FileUploader loading={loading} />
+          <FileUploader loading={loading} file={file} setFile={setFile} />
 
           {/* Upload button */}
           <button
             onClick={handleUpload}
-            disabled={loading || !courseName.trim()}
+            disabled={loading || !file}
             className="w-full mt-6 py-3 rounded-xl gradient-primary text-white font-semibold text-sm transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading ? (

@@ -1,7 +1,9 @@
 /**
  * PDF Service — Extract text from PDF buffers and chunk them
  */
-const pdf = require('pdf-parse');
+const pdfParse = require('pdf-parse');
+// Handle ESM/CJS interop — pdf-parse may export via .default
+const pdf = pdfParse.default || pdfParse;
 const { chunkText } = require('../utils/chunker');
 
 /**

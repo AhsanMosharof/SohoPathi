@@ -5,7 +5,8 @@
 const express = require('express');
 const multer = require('multer');
 const prisma = require('../prismaClient');
-const { extractAndChunk } = require('../services/pdfService');
+const { extractAndChunk, chunkText } = require('../services/pdfService');
+const { extractTextFromImage } = require('../services/geminiService');
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -16,18 +17,27 @@ router.post('/', upload.single('file'), async (req, res, next) => {
     const file = req.file;
 
     if (!file) {
-      return res.status(400).json({ success: false, error: 'No PDF file uploaded' });
+      return res.status(400).json({ success: false, error: 'No file uploaded' });
     }
 
     if (!courseName || courseName.trim().length === 0) {
       return res.status(400).json({ success: false, error: 'Course name is required' });
     }
 
-    // Extract text and chunk it
-    const { chunks } = await extractAndChunk(file.buffer, 500);
+    // Extract text and chunk it based on file type
+    let chunks = [];
+    if (file.mimetype === 'application/pdf') {
+      const result = await extractAndChunk(file.buffer, 500);
+      chunks = result.chunks;
+    } else if (file.mimetype.startsWith('image/')) {
+      const text = await extractTextFromImage(file.buffer, file.mimetype);
+      chunks = chunkText(text, 500);
+    } else {
+      return res.status(400).json({ success: false, error: 'Unsupported file type. Please upload a PDF or Image.' });
+    }
 
     if (chunks.length === 0) {
-      return res.status(400).json({ success: false, error: 'Could not extract text from PDF' });
+      return res.status(400).json({ success: false, error: 'Could not extract text from the file' });
     }
 
     // Create course and chunks in DB

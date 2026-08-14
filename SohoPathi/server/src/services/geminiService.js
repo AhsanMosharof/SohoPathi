@@ -78,4 +78,27 @@ Explain "${topic}" simply:`;
   return response.text;
 }
 
-module.exports = { chatWithContext, generateQuiz, explainSimpler };
+/**
+ * Extract text from an image
+ */
+async function extractTextFromImage(buffer, mimeType) {
+  const prompt = `Extract all the text from this image exactly as written. 
+If there are diagrams, describe them briefly. Do not add any extra commentary.`;
+  
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.5-flash',
+    contents: [
+      prompt,
+      {
+        inlineData: {
+          data: buffer.toString('base64'),
+          mimeType,
+        },
+      },
+    ],
+  });
+
+  return response.text;
+}
+
+module.exports = { chatWithContext, generateQuiz, explainSimpler, extractTextFromImage };
