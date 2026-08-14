@@ -1,0 +1,162 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-sans: "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+
+  --color-background: oklch(0.08 0.02 270);
+  --color-foreground: oklch(0.95 0.01 270);
+  --color-card: oklch(0.12 0.02 270);
+  --color-card-foreground: oklch(0.95 0.01 270);
+  --color-primary: oklch(0.65 0.22 280);
+  --color-primary-foreground: oklch(0.98 0.01 270);
+  --color-secondary: oklch(0.18 0.03 270);
+  --color-secondary-foreground: oklch(0.9 0.01 270);
+  --color-accent: oklch(0.7 0.2 170);
+  --color-accent-foreground: oklch(0.08 0.02 270);
+  --color-muted: oklch(0.18 0.02 270);
+  --color-muted-foreground: oklch(0.6 0.02 270);
+  --color-destructive: oklch(0.6 0.22 25);
+  --color-border: oklch(0.22 0.03 270);
+  --color-input: oklch(0.18 0.03 270);
+  --color-ring: oklch(0.65 0.22 280);
+
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+}
+
+/* ── Base ────────────────────── */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  color: var(--color-foreground);
+  background: var(--color-background);
+  font-family: var(--font-sans);
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Glassmorphism utilities ── */
+.glass {
+  background: oklch(0.14 0.02 270 / 0.6);
+  backdrop-filter: blur(16px) saturate(1.5);
+  -webkit-backdrop-filter: blur(16px) saturate(1.5);
+  border: 1px solid oklch(0.3 0.03 270 / 0.3);
+}
+
+.glass-light {
+  background: oklch(0.18 0.02 270 / 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid oklch(0.3 0.03 270 / 0.2);
+}
+
+/* ── Gradient backgrounds ──── */
+.gradient-primary {
+  background: linear-gradient(135deg, oklch(0.55 0.25 280), oklch(0.6 0.2 310), oklch(0.65 0.18 170));
+}
+
+.gradient-hero {
+  background:
+    radial-gradient(ellipse at 20% 50%, oklch(0.3 0.15 280 / 0.4) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, oklch(0.25 0.12 170 / 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, oklch(0.2 0.1 310 / 0.2) 0%, transparent 50%),
+    var(--color-background);
+}
+
+/* ── Animated gradient orbs ── */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.3;
+  animation: float 8s ease-in-out infinite;
+}
+
+.orb-1 {
+  width: 400px; height: 400px;
+  background: oklch(0.5 0.25 280);
+  top: -100px; left: -50px;
+  animation-delay: 0s;
+}
+
+.orb-2 {
+  width: 300px; height: 300px;
+  background: oklch(0.5 0.2 170);
+  top: 50%; right: -80px;
+  animation-delay: -3s;
+}
+
+.orb-3 {
+  width: 250px; height: 250px;
+  background: oklch(0.45 0.18 310);
+  bottom: -60px; left: 40%;
+  animation-delay: -5s;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-30px) scale(1.05); }
+}
+
+/* ── Micro-animations ──────── */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px oklch(0.65 0.22 280 / 0.2); }
+  50% { box-shadow: 0 0 40px oklch(0.65 0.22 280 / 0.4); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.6s ease-out forwards;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* ── Staggered entry ───────── */
+.stagger > * {
+  opacity: 0;
+  animation: slide-up 0.5s ease-out forwards;
+}
+.stagger > *:nth-child(1) { animation-delay: 0.1s; }
+.stagger > *:nth-child(2) { animation-delay: 0.2s; }
+.stagger > *:nth-child(3) { animation-delay: 0.3s; }
+.stagger > *:nth-child(4) { animation-delay: 0.4s; }
+.stagger > *:nth-child(5) { animation-delay: 0.5s; }
+
+/* ── Scrollbar ─────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: oklch(0.3 0.03 270);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.4 0.05 270);
+}
