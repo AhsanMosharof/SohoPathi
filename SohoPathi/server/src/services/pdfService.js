@@ -1,22 +1,16 @@
 /**
- * PDF Service — Extract text from PDF using Gemini (inline data)
- * and image files too. Falls back to chunking for downstream use.
+ * PDF Service — Extract text from PDF using pdf-parse (CJS v1.1.1)
+ * For images, falls back to Gemini vision.
  */
+const pdfParse = require('pdf-parse');
 const { chunkText } = require('../utils/chunker');
-const { extractTextFromImage } = require('./geminiService');
 
 /**
- * Extract text from a PDF buffer using Gemini's vision capability
+ * Extract raw text from a PDF buffer
  */
 async function extractTextFromPDF(buffer) {
-  return await extractTextFromImage(buffer, 'application/pdf');
-}
-
-/**
- * Extract raw text from a buffer (PDF or Image) using Gemini
- */
-async function extractText(buffer, mimeType = 'application/pdf') {
-  return await extractTextFromImage(buffer, mimeType);
+  const data = await pdfParse(buffer);
+  return data.text;
 }
 
 /**
@@ -28,4 +22,4 @@ async function extractAndChunk(buffer, wordLimit = 500) {
   return { text, chunks };
 }
 
-module.exports = { extractText, extractAndChunk, chunkText };
+module.exports = { extractTextFromPDF, extractAndChunk, chunkText };
