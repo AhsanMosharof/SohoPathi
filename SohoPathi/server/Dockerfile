@@ -2,7 +2,7 @@ FROM node:20-bookworm-slim
 
 WORKDIR /app
 
-COPY package.json ./
+COPY package.json package-lock.json ./
 RUN npm install
 
 COPY prisma ./prisma
@@ -12,5 +12,4 @@ COPY . .
 
 EXPOSE 5000
 
-# migrate at runtime, then start
-CMD ["sh", "-c", "npx prisma migrate deploy && npm run start"]
+CMD ["sh", "-c", "npx prisma db push --accept-data-loss && npm run start"]

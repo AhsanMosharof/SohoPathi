@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactCompiler: true
+  reactCompiler: false,
+  experimental: {
+    optimizePackageImports: ['lucide-react']
+  }
 };
 
 export default nextConfig;
