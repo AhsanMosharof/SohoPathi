@@ -7,6 +7,26 @@ const { GoogleGenAI } = require('@google/genai');
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 /**
+ * Retry a Gemini API call up to maxRetries times on 503 errors
+ */
+async function withRetry(fn, maxRetries = 3) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      const is503 = err?.message?.includes('503') || err?.message?.includes('UNAVAILABLE');
+      if (is503 && attempt < maxRetries) {
+        const delay = attempt * 1500;
+        console.warn(`Gemini 503 - retrying in ${delay}ms (attempt ${attempt}/${maxRetries})`);
+        await new Promise((r) => setTimeout(r, delay));
+      } else {
+        throw err;
+      }
+    }
+  }
+}
+
+/**
  * Grounded Q&A — answer ONLY from the provided context
  */
 async function chatWithContext(context, question) {
@@ -23,10 +43,10 @@ Question: ${question}
 
 Answer:`;
 
-  const response = await ai.models.generateContent({
+  const response = await withRetry(() => ai.models.generateContent({
     model: 'gemini-2.5-flash',
     contents: prompt,
-  });
+  }));
 
   return response.text;
 }
@@ -46,11 +66,11 @@ Return ONLY valid JSON array in this exact shape:
 Material:
 ${material}`;
 
-  const response = await ai.models.generateContent({
+  const response = await withRetry(() => ai.models.generateContent({
     model: 'gemini-2.5-flash',
     contents: prompt,
     config: { responseMimeType: 'application/json' },
-  });
+  }));
 
   return JSON.parse(response.text);
 }

@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { Brain, MessageSquare } from "lucide-react";
 import ChatWindow from "@/components/ChatWindow";
 import { sendChat, getCourses } from "@/lib/api";
-import { addMessage, setLoading, setActiveCourse, setCourses } from "@/lib/store";
+import { addMessage, setLoading, setActiveCourse, setCourses, loadPersistedMessages, clearMessages } from "@/lib/store";
 
 export default function ChatPage() {
   const searchParams = useSearchParams();
@@ -21,6 +21,11 @@ export default function ChatPage() {
 
   const [localCourses, setLocalCourses] = useState([]);
   const [selectedCourseId, setSelectedCourseId] = useState(courseId || "");
+
+  // Load persisted chat messages from localStorage on mount
+  useEffect(() => {
+    dispatch(loadPersistedMessages());
+  }, []);
 
   // Fetch courses
   useEffect(() => {
@@ -107,6 +112,16 @@ export default function ChatPage() {
                 </option>
               ))}
             </select>
+
+            {/* Clear chat */}
+            {messages.length > 0 && (
+              <button
+                onClick={() => dispatch(clearMessages())}
+                className="px-3 py-2 rounded-lg text-xs text-[var(--color-muted-foreground)] border border-[var(--color-border)] hover:bg-[var(--color-secondary)] transition-all"
+              >
+                Clear
+              </button>
+            )}
 
             {/* Quiz CTA */}
             {selectedCourseId && (

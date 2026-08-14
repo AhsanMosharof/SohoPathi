@@ -2,6 +2,25 @@
 
 import { configureStore, createSlice } from "@reduxjs/toolkit";
 
+// Load chat messages from localStorage (safe for SSR)
+function loadMessages() {
+  if (typeof window === "undefined") return [];
+  try {
+    const saved = localStorage.getItem("sohopathi_chat_messages");
+    return saved ? JSON.parse(saved) : [];
+  } catch {
+    return [];
+  }
+}
+
+// Save chat messages to localStorage (safe for SSR)
+function saveMessages(messages) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem("sohopathi_chat_messages", JSON.stringify(messages));
+  } catch {}
+}
+
 // Course slice
 const courseSlice = createSlice({
   name: "course",
@@ -22,7 +41,7 @@ const courseSlice = createSlice({
   },
 });
 
-// Chat slice
+// Chat slice — initialized from localStorage
 const chatSlice = createSlice({
   name: "chat",
   initialState: {
@@ -32,12 +51,17 @@ const chatSlice = createSlice({
   reducers: {
     addMessage: (state, action) => {
       state.messages.push(action.payload);
+      saveMessages(state.messages);
     },
     setLoading: (state, action) => {
       state.loading = action.payload;
     },
     clearMessages: (state) => {
       state.messages = [];
+      saveMessages([]);
+    },
+    loadPersistedMessages: (state) => {
+      state.messages = loadMessages();
     },
   },
 });
@@ -81,7 +105,7 @@ const quizSlice = createSlice({
 });
 
 export const { setCourses, addCourse, setActiveCourse } = courseSlice.actions;
-export const { addMessage, setLoading, clearMessages } = chatSlice.actions;
+export const { addMessage, setLoading, clearMessages, loadPersistedMessages } = chatSlice.actions;
 export const { setQuiz, addAnswer, nextQuestion, resetQuiz } = quizSlice.actions;
 
 const store = configureStore({
