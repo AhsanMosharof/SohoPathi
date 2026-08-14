@@ -88,12 +88,17 @@ If there are diagrams, describe them briefly. Do not add any extra commentary.`;
   const response = await ai.models.generateContent({
     model: 'gemini-2.5-flash',
     contents: [
-      prompt,
       {
-        inlineData: {
-          data: buffer.toString('base64'),
-          mimeType,
-        },
+        role: 'user',
+        parts: [
+          { text: prompt },
+          {
+            inlineData: {
+              data: buffer.toString('base64'),
+              mimeType,
+            },
+          },
+        ],
       },
     ],
   });
